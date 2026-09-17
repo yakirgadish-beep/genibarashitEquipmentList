@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת שיבוץ - גני בראשית</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts Rubik for Hebrew -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Rubik', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7f1',
+                            100: '#dcecdb',
+                            200: '#bcdab9',
+                            300: '#94c290',
+                            400: '#6aa366',
+                            500: '#4d874a',
+                            600: '#3c6c39',
+                            700: '#325630',
+                            800: '#2b4529',
+                            900: '#243a23',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Rubik', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-full flex flex-col justify-between text-slate-800 antialiased relative selection:bg-brand-500 selection:text-white">
+
+    <!-- MODAL APP LOCK: Entry Password Gate -->
+    <div id="modal-app-lock" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl space-y-4 text-center border border-slate-100">
+            <div class="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 mx-auto flex items-center justify-center text-2xl shadow-sm">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-lg">כניסה למערכת</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">המערכת מוגנת. אנא הזן את סיסמת הגישה כדי להמשיך:</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="app-password-input" placeholder="הכנס סיסמה" onkeydown="if(event.key==='Enter') verifyAppPassword()" class="w-full text-center tracking-wide text-sm font-bold px-3 py-2.5 rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <p id="app-password-error" class="text-[11px] font-bold text-red-600 hidden">סיסמה שגויה, נסה שוב</p>
+            </div>
+            <button onclick="verifyAppPassword()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold rounded-2xl shadow-md shadow-brand-600/25 transition">
+                כניסה למערכת
+            </button>
+        </div>
+    </div>
+
+    <!-- Background Watermark Logo -->
+    <div class="fixed inset-0 pointer-events-none flex items-center justify-center z-0 opacity-10 overflow-hidden select-none">
+        <svg id="svg-watermark-fallback" class="w-[420px] h-[420px] max-w-[85vw] max-h-[80vh]" viewBox="0 0 400 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M200 285 C195 240 175 190 130 140" stroke="#4d874a" stroke-width="4" stroke-linecap="round"/>
+            <path d="M200 285 C205 240 225 190 270 140" stroke="#4d874a" stroke-width="4" stroke-linecap="round"/>
+            <path d="M200 250 C180 210 140 180 90 170" stroke="#4d874a" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M200 250 C220 210 260 180 310 170" stroke="#4d874a" stroke-width="3.5" stroke-linecap="round"/>
+            <g fill="#4d874a" opacity="0.9">
+                <circle cx="200" cy="80" r="18"/>
+                <circle cx="130" cy="120" r="16"/>
+                <circle cx="270" cy="120" r="16"/>
+                <circle cx="90" cy="170" r="14"/>
+                <circle cx="310" cy="170" r="14"/>
+            </g>
+            <text x="200" y="380" text-anchor="middle" font-family="'Rubik', sans-serif" font-weight="800" font-size="36" fill="#2b4529">גני בראשית</text>
+        </svg>
+    </div>
+
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 glass-card border-b border-slate-200/80 shadow-sm">
+        <div class="max-w-xl mx-auto px-4 py-2.5 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-brand-600/30">
+                    <i class="fa-solid fa-child-reaching"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <h1 class="font-extrabold text-sm text-slate-900 leading-none">גני בראשית</h1>
+                        <!-- Realtime Sync Status Badge -->
+                        <button onclick="openRoomCodeModal()" title="לחץ לשינוי חדר סנכרון" id="sync-badge" class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition cursor-pointer">
+                            <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            <span id="sync-text">מתחבר לענן...</span>
+                        </button>
+                    </div>
+                    <p id="header-event-name" class="text-[11px] text-slate-500 font-semibold mt-0.5">מפגש קהילתי</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-1.5">
+                <button id="home-nav-btn" onclick="nav('screen-home')" class="hidden text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-xl font-semibold transition flex items-center gap-1 border border-slate-200">
+                    <i class="fa-solid fa-house text-slate-500"></i>
+                    <span>ראשי</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-xl w-full mx-auto p-4 flex-grow flex flex-col justify-center relative z-10">
+
+        <!-- SCREEN 1: Welcome & Overview -->
+        <section id="screen-home" class="screen space-y-5">
+            <div class="text-center py-1 space-y-1.5">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-50 text-brand-700 text-xs font-bold rounded-full border border-brand-200/60">
+                    <i class="fa-solid fa-cloud-arrow-up text-brand-500"></i> סנכרון בלייב בין כל הורי הגן
+                </span>
+                <h2 class="text-2xl font-black text-slate-900">ברוכים הבאים למפגש הקהילתי</h2>
+                <p class="text-slate-600 text-xs max-w-sm mx-auto leading-relaxed">
+                    מערכת חכמה לשיבוץ וחלוקת מצרכים, ציוד וכיבוד עבור ארבעת גני בראשית.
+                </p>
+            </div>
+
+            <!-- Global Event Summary Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-5 shadow-xl space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-700/60 pb-2.5">
+                    <span class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-pie text-brand-400"></i> סטטוס שיבוץ כללי
+                    </span>
+                    <span id="global-percent-badge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-brand-500/30 text-brand-300 border border-brand-400/30">
+                        0% הושלם
+                    </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center pt-1">
+                    <div class="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/50">
+                        <span id="stat-total-items" class="block font-black text-lg text-white">0</span>
+                        <span class="text-[10px] text-slate-400 font-medium">פריטים נדרשים</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/50">
+                        <span id="stat-fulfilled-items" class="block font-black text-lg text-emerald-400">0</span>
+                        <span class="text-[10px] text-slate-400 font-medium">פריטים שובצו</span>
+                    </div>
+                    <div class="bg-slate-800/80 p-2.5 rounded-2xl border border-slate-700/50">
+                        <span id="stat-total-parents" class="block font-black text-lg text-sky-400">0</span>
+                        <span class="text-[10px] text-slate-400 font-medium">הורים נרשמו</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Selector Buttons -->
+            <div class="grid gap-3">
+                <button onclick="nav('screen-gardens')" class="group p-4 bg-white rounded-2xl border-2 border-brand-500/40 hover:border-brand-500 shadow-sm hover:shadow-md transition text-right flex items-center justify-between">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl group-hover:scale-105 transition duration-200">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-base group-hover:text-brand-600 transition">כניסת הורים</h3>
+                            <p class="text-xs text-slate-500">בחירת גן והרשמה להבאת ציוד/כיבוד</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-arrow-left text-slate-400 group-hover:text-brand-600 group-hover:-translate-x-1 transition"></i>
+                </button>
+
+                <button onclick="toggleAdminPinModal(true)" class="group p-4 bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-sm transition text-right flex items-center justify-between">
+                    <div class="flex items-center gap-3.5">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl group-hover:scale-105 transition duration-200">
+                            <i class="fa-solid fa-user-gear"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-base">כניסת מנהל/ת מערכת</h3>
+                            <p class="text-xs text-slate-500">הגדרת אירוע, הוספת מוצרים ומעקב בלייב</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-lock text-slate-400"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: Parent - Choose Garden -->
+        <section id="screen-gardens" class="screen hidden space-y-5">
+            <div class="text-center">
+                <h2 class="text-xl font-extrabold text-slate-900">בחירת גן ילדים</h2>
+                <p class="text-slate-500 text-xs mt-1">איזה גן אתם מייצגים במפגש הקהילתי?</p>
+            </div>
+
+            <!-- 4 Garden Cards Grid -->
+            <div class="grid grid-cols-2 gap-3.5">
+                <!-- Garden Roee -->
+                <button onclick="selectGarden('רועי')" class="p-4 bg-white rounded-2xl border border-slate-200 hover:border-amber-400 hover:shadow-md transition text-right flex flex-col justify-between gap-3 group relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg group-hover:scale-110 transition">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <span id="badge-garden-רועי" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                            0/0
+                        </span>
+                    </div>
+                    <div>
+                        <span class="font-black text-slate-900 text-base block group-hover:text-amber-700">גן רועי</span>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div id="bar-garden-רועי" class="bg-amber-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Garden Yedidut -->
+                <button onclick="selectGarden('ידידות')" class="p-4 bg-white rounded-2xl border border-slate-200 hover:border-sky-400 hover:shadow-md transition text-right flex flex-col justify-between gap-3 group relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-lg group-hover:scale-110 transition">
+                            <i class="fa-solid fa-handshake"></i>
+                        </div>
+                        <span id="badge-garden-ידידות" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                            0/0
+                        </span>
+                    </div>
+                    <div>
+                        <span class="font-black text-slate-900 text-base block group-hover:text-sky-700">גן ידידות</span>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div id="bar-garden-ידידות" class="bg-sky-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Garden Matilda -->
+                <button onclick="selectGarden('מתילדה')" class="p-4 bg-white rounded-2xl border border-slate-200 hover:border-purple-400 hover:shadow-md transition text-right flex flex-col justify-between gap-3 group relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg group-hover:scale-110 transition">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <span id="badge-garden-מתילדה" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                            0/0
+                        </span>
+                    </div>
+                    <div>
+                        <span class="font-black text-slate-900 text-base block group-hover:text-purple-700">גן מתילדה</span>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div id="bar-garden-מתילדה" class="bg-purple-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Garden Amit -->
+                <button onclick="selectGarden('עמית')" class="p-4 bg-white rounded-2xl border border-slate-200 hover:border-emerald-400 hover:shadow-md transition text-right flex flex-col justify-between gap-3 group relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg group-hover:scale-110 transition">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <span id="badge-garden-עמית" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            0/0
+                        </span>
+                    </div>
+                    <div>
+                        <span class="font-black text-slate-900 text-base block group-hover:text-emerald-700">גן עמית</span>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div id="bar-garden-עמית" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Garden Community -->
+                <button id="btn-garden-community" onclick="selectGarden('כלל הקהילה')" class="col-span-2 p-4 bg-white rounded-2xl border border-slate-200 hover:border-indigo-400 hover:shadow-md transition text-right flex flex-col justify-between gap-3 group relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg group-hover:scale-110 transition">
+                            <i id="icon-garden-community" class="fa-solid fa-earth-americas"></i>
+                        </div>
+                        <span id="badge-garden-כלל-הקהילה" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            0/0
+                        </span>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-black text-slate-900 text-base block group-hover:text-indigo-700">כלל הקהילה</span>
+                            <span id="lock-status-community" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 hidden">
+                                <i class="fa-solid fa-lock text-[9px]"></i> נדרש אישור מנהל
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2 overflow-hidden">
+                            <div id="bar-garden-כלל-הקהילה" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- "What did I sign up for?" Button -->
+            <div class="pt-2">
+                <button onclick="openMyItemsModal()" class="w-full py-3.5 px-4 bg-sky-50 hover:bg-sky-100 text-sky-800 font-bold rounded-2xl border border-sky-200 transition flex items-center justify-center gap-2 text-xs shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass text-sky-600"></i>
+                    <span>🔍 למה נרשמתי? (בדיקת הרשמה קיימת)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: Parent - Items List & Signup -->
+        <section id="screen-items" class="screen hidden space-y-4">
+            <!-- Garden Header Badge -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between shadow-sm">
+                <div>
+                    <span class="text-[11px] text-slate-400 font-bold block">רשימת ציוד וכיבוד:</span>
+                    <h2 id="garden-title-display" class="text-xl font-black text-brand-700">גן</h2>
+                </div>
+                <button onclick="nav('screen-gardens')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl font-bold transition border border-slate-200">
+                    החלף גן
+                </button>
+            </div>
+
+            <!-- Filter Tabs for Items -->
+            <div class="flex bg-slate-200/70 p-1 rounded-xl text-xs font-bold text-slate-600">
+                <button onclick="filterParentItems('all')" id="tab-parent-all" class="flex-1 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition">הכל</button>
+                <button onclick="filterParentItems('open')" id="tab-parent-open" class="flex-1 py-1.5 rounded-lg hover:text-slate-900 transition">פתוח להרשמה</button>
+                <button onclick="filterParentItems('full')" id="tab-parent-full" class="flex-1 py-1.5 rounded-lg hover:text-slate-900 transition">הושלם</button>
+            </div>
+
+            <!-- Items List Container -->
+            <div id="items-list" class="space-y-2.5">
+                <!-- Rendered dynamically via JS -->
+            </div>
+
+            <!-- Registration Form Card -->
+            <div id="registration-form" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4 mt-4">
+                <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+                    <i class="fa-solid fa-id-card text-brand-600"></i>
+                    <span>אישור והרשמה להבאת פריטים</span>
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">שם ההורה *</label>
+                        <input type="text" id="parent-name" placeholder="למשל: ישראל ישראלי" class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">שם הילד/ה *</label>
+                        <input type="text" id="child-name" placeholder="למשל: נועה ישראלי" class="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <button onclick="submitRegistration()" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white font-extrabold rounded-xl shadow-md shadow-brand-600/25 transition flex items-center justify-center gap-2 text-xs">
+                    <i class="fa-solid fa-check"></i>
+                    <span>אשר הרשמה וסנכרן במערכת</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: Admin Dashboard -->
+        <section id="screen-admin" class="screen hidden space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                <div>
+                    <span class="text-[10px] bg-slate-900 text-white px-2 py-0.5 rounded-full font-bold">אזור ניהול</span>
+                    <h2 class="text-xl font-black text-slate-900 mt-0.5">ניהול אירוע וציוד</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="logoutAdmin()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-xl font-bold transition border border-red-100">
+                        התנתק
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Event Settings -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-sm">
+                <h3 class="font-extrabold text-xs text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-days text-brand-600"></i>
+                    <span>1. בחירת אירוע פעיל והגדרות הרשמה</span>
+                </h3>
+                <div class="flex flex-col gap-3">
+                    <select id="admin-event-select" onchange="changeActiveEvent()" class="w-full text-xs px-3 py-2.5 border border-slate-300 rounded-xl bg-slate-50 font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <!-- Populated via JS -->
+                    </select>
+                    <div class="flex gap-2 border-t border-slate-100 pt-3">
+                        <input type="text" id="admin-new-event-input" placeholder="שם אירוע חדש..." class="flex-grow text-xs px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <button onclick="addNewEvent()" class="bg-slate-900 hover:bg-slate-800 text-white text-[11px] px-3 py-2 rounded-xl font-bold transition whitespace-nowrap">
+                            הוסף אירוע
+                        </button>
+                    </div>
+                    <!-- Community Access Toggle -->
+                    <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+                        <div>
+                            <span class="text-xs font-bold text-slate-800 block">אפשר הזנה ב"כלל הקהילה"</span>
+                            <span class="text-[10px] text-slate-500 block">כאשר מסומן, הורי הגן יוכלו להיכנס ולהירשם לפריטים ב"כלל הקהילה"</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="admin-allow-community-toggle" onchange="toggleAllowCommunity(this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Add Items Card -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-sm">
+                <h3 class="font-extrabold text-xs text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-circle-plus text-sky-600"></i>
+                    <span>2. הוספת פריטים מהירה (העתק-הדבק)</span>
+                </h3>
+                
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">בחר גן יעד:</label>
+                    <select id="admin-garden-select" class="w-full text-xs px-3 py-2 border border-slate-300 rounded-xl bg-slate-50 font-bold focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="רועי">גן רועי</option>
+                        <option value="ידידות">גן ידידות</option>
+                        <option value="מתילדה">גן מתילדה</option>
+                        <option value="עמית">גן עמית</option>
+                        <option value="כלל הקהילה">כלל הקהילה</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">הרשימה (כל שורה: <code class="bg-slate-100 px-1 py-0.5 rounded text-red-600 font-mono">שם פריט, כמות</code>):</label>
+                    <textarea id="bulk-items" rows="3" placeholder="עוגת שוקולד, 2&#10;בקבוק שתיה קלה, 5&#10;חבילת מפיות, 1" class="w-full text-xs font-mono p-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 leading-relaxed"></textarea>
+                </div>
+
+                <button onclick="addBulkItems()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>הוסף פריטים לגן הנבחר</span>
+                </button>
+            </div>
+
+            <!-- Tracking & Monitoring Section -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-sm">
+                <div class="flex items-center justify-between border-b pb-2.5">
+                    <h3 class="font-extrabold text-xs text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-emerald-600"></i>
+                        <span>3. מעקב נרשמים וניהול פריטים</span>
+                    </h3>
+                    <select id="admin-view-garden" onchange="renderAdminTracking()" class="text-xs px-2.5 py-1.5 border border-slate-300 rounded-xl bg-slate-50 font-bold text-slate-700">
+                        <option value="רועי">גן רועי</option>
+                        <option value="ידידות">גן ידידות</option>
+                        <option value="מתילדה">גן מתילדה</option>
+                        <option value="עמית">גן עמית</option>
+                        <option value="כלל הקהילה">כלל הקהילה</option>
+                    </select>
+                </div>
+
+                <div id="admin-tracking-list" class="space-y-2.5 pt-1">
+                    <!-- Tracking cards rendered via JS -->
+                </div>
+            </div>
+
+            <!-- Advanced System Actions -->
+            <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200 space-y-2">
+                <span class="text-xs font-extrabold text-slate-700 block">פעולות מערכת וגיבוי:</span>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="exportDataJSON()" class="py-2.5 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 text-xs rounded-xl font-bold transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-download text-slate-500"></i> ייצא גיבוי (JSON)
+                    </button>
+                    <button onclick="promptResetCurrentEvent()" class="py-2.5 px-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs rounded-xl font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-rotate-left text-amber-600"></i> איפוס אירוע נוכחי
+                    </button>
+                    <button onclick="promptResetSystem()" class="col-span-2 py-2.5 px-3 bg-red-100 hover:bg-red-200 text-red-700 text-xs rounded-xl font-bold transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i> איפוס מערכת כולל
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL SHARE: Share & Sync Dialog -->
+    <div id="modal-share" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center border border-slate-100">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center text-xl">
+                <i class="fa-solid fa-share-nodes"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-base">שתף את המערכת והנתונים</h3>
+                <p class="text-xs text-slate-500 mt-1">הקישור וקוד החדר כוללים את כל הפריטים וההרשמות בזמן אמת</p>
+            </div>
+
+            <!-- Display Room Code Banner -->
+            <div class="bg-brand-50 border border-brand-200 p-3 rounded-2xl text-center">
+                <span class="text-[10px] text-brand-700 font-bold block">קוד החדר הסודי לסנכרון:</span>
+                <span id="share-room-code-display" class="text-lg font-black font-mono text-brand-900 tracking-wider">...</span>
+            </div>
+
+            <div class="space-y-1 text-right">
+                <label class="text-[11px] font-bold text-slate-600 block">קישור ישיר לשיתוף:</label>
+                <div class="flex gap-1.5">
+                    <input type="text" id="share-link-input" readonly class="w-full text-[11px] px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-mono text-slate-700 focus:outline-none select-all dir-ltr" dir="ltr">
+                    <button onclick="copyShareLink()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs px-3 py-2 rounded-xl font-bold transition flex items-center gap-1 shrink-0">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>העתק</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-2 pt-1">
+                <button onclick="shareViaWhatsApp()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-2xl transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>שתף ישירות ב-WhatsApp</span>
+                </button>
+            </div>
+
+            <button onclick="closeShareModal()" class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                סגור
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL ROOM CODE: Change or Enter Sync Room -->
+    <div id="modal-room-code" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl space-y-4 text-center border border-slate-100">
+            <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-800 mx-auto flex items-center justify-center text-xl">
+                <i class="fa-solid fa-tower-broadcast"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-base">קוד חדר סנכרון</h3>
+                <p class="text-xs text-slate-500 mt-1">הכנס קוד חדר משותף כדי להסתנכרן עם הורים נוספים</p>
+            </div>
+            <div>
+                <input type="text" id="room-code-input" placeholder="למשל: breshit-2026" class="w-full text-center tracking-wide text-sm font-bold px-3 py-2.5 rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeRoomCodeModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">ביטול</button>
+                <button onclick="submitNewRoomCode()" class="py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition">התחבר לחדר</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN PIN -->
+    <div id="modal-admin-pin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl space-y-4 text-center border border-slate-100">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 mx-auto flex items-center justify-center text-xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-base">כניסת מנהל</h3>
+                <p class="text-xs text-slate-500 mt-1">הזן את הקוד הסודי לגישה למערכת</p>
+            </div>
+            <div>
+                <input type="password" id="admin-pin-input" maxlength="10" placeholder="הכנס קוד גישה" class="w-full text-center tracking-widest text-lg font-bold px-3 py-2.5 rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="toggleAdminPinModal(false)" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">ביטול</button>
+                <button onclick="verifyAdminPin()" class="py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">היכנס</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN RESET PIN -->
+    <div id="modal-reset-pin" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl space-y-4 text-center border border-red-200">
+            <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-base">אזהרה: איפוס מערכת!</h3>
+                <p class="text-xs text-red-600 font-bold mt-1 leading-relaxed">כלל המידע וההרשמות במערכת יימחקו לחלוטין. לא ניתן לשחזר פעולה זו.<br><br>הזן קוד איפוס לאישור:</p>
+            </div>
+            <div>
+                <input type="password" id="reset-pin-input" maxlength="10" placeholder="קוד איפוס" class="w-full text-center tracking-widest text-lg font-bold px-3 py-2.5 rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="closeResetPinModal()" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">ביטול איפוס</button>
+                <button onclick="executeSystemReset()" class="py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition">מחק הכל</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: "What did I sign up for?" Search Dialog -->
+    <div id="modal-my-items" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4 border border-slate-100">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check text-brand-600"></i>
+                    <span>חיפוש הרשמה קיימת</span>
+                </h3>
+                <button onclick="closeMyItemsModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500">הזינו את שמכם או שם ילדכם לבדיקה רגעית:</p>
+
+            <div class="flex gap-2">
+                <input type="text" id="my-items-search-input" placeholder="שם הורה / שם ילד" class="flex-grow text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <button onclick="performMyItemsSearch()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition">
+                    חפש
+                </button>
+            </div>
+
+            <div id="my-items-results" class="max-h-52 overflow-y-auto space-y-2 text-xs pt-1">
+                <!-- Results populated here -->
+            </div>
+
+            <button onclick="closeMyItemsModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition">
+                סגור
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: Custom Toast -->
+    <div id="modal-toast" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-5 shadow-2xl space-y-3 text-center border border-slate-100">
+            <div id="toast-icon-bg" class="w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-xl">
+                <i id="toast-icon" class="fa-solid"></i>
+            </div>
+            <h4 id="toast-title" class="font-extrabold text-slate-900 text-sm">הודעה</h4>
+            <p id="toast-message" class="text-xs text-slate-600 leading-relaxed"></p>
+            <button onclick="closeToast()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
+                אישור
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: Custom Confirm Dialog -->
+    <div id="modal-confirm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xs w-full p-5 shadow-2xl space-y-4 text-center border border-slate-100">
+            <div class="w-11 h-11 rounded-2xl bg-red-100 text-red-600 mx-auto flex items-center justify-center text-lg">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <h4 id="confirm-title" class="font-extrabold text-slate-900 text-sm">אישור פעולה</h4>
+            <p id="confirm-message" class="text-xs text-slate-600 leading-relaxed"></p>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="confirm-cancel-btn" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">ביטול</button>
+                <button id="confirm-ok-btn" class="py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition">אישור</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200/80 py-3 text-center text-[11px] text-slate-500 font-semibold">
+        נוצר ע"י יקיר עשוש | גני בראשית
+    </footer>
+
+    <script>
+        const APP_ACCESS_PASSWORD = "genibarashit";
+        const ADMIN_PIN_CODE = "15793";
+        const RESET_PIN_CODE = "24860";
+        
+        const defaultEventsList = [
+            "ערב קהילה פתיחת שנה",
+            "שישי יער - חגי תשרי",
+            "ערב קהילה - משפחות סדנא מחברת",
+            "ישיבת צוות מוביל (1)",
+            "ערב קהילה - חנוכה",
+            "ערב קהילה (טבת ) - נשים",
+            "שישי יער (שבת)",
+            "ערב קהילה (ערב גברים)",
+            "ערב הוקרה ועדי + פעילי קהילה",
+            "ערב קהילה סדנא זוגית",
+            "שישי יער - פורים",
+            "ערב קהילה - מסיבת פורים",
+            "ערב קהילה ביעור חמץ פסח",
+            "ערב צוות מוביל (2) סוף שנה",
+            "ערב קהילה לג בעומר מדורה",
+            "שישי יער - יום ירושלים+ לימוד שבועות",
+            "ערב קהילה פתיחת קיץ"
+        ];
+        
+        // Initial Seed Data - Starts Empty
+        const defaultData = {
+            events: [...defaultEventsList],
+            currentEvent: "ערב קהילה פתיחת שנה",
+            allowCommunity: false,
+            items: []
+        };
+
+        let appData = defaultData;
+        let currentGarden = "";
+        let parentFilterMode = "all";
+        let onConfirmCallback = null;
+        
+        // Cloud Sync Engine Variables
+        let currentRoomCode = "breshit-2026";
+        let isSyncing = false;
+        let lastSyncTime = 0;
+        let cloudPollingInterval = null;
+
+        function checkAppAccess() {
+            const savedAccess = sessionStorage.getItem('breshit_app_access');
+            if (savedAccess === 'true') {
+                document.getElementById('modal-app-lock').classList.add('hidden');
+            } else {
+                document.getElementById('modal-app-lock').classList.remove('hidden');
+                setTimeout(() => {
+                    const input = document.getElementById('app-password-input');
+                    if (input) input.focus();
+                }, 100);
+            }
+        }
+
+        function verifyAppPassword() {
+            const input = document.getElementById('app-password-input').value.trim();
+            const errorEl = document.getElementById('app-password-error');
+            if (input === APP_ACCESS_PASSWORD) {
+                sessionStorage.setItem('breshit_app_access', 'true');
+                document.getElementById('modal-app-lock').classList.add('hidden');
+                if (errorEl) errorEl.classList.add('hidden');
+                showToast("ברוכים הבאים!", "התחברת בהצלחה למערכת.", 'success');
+            } else {
+                if (errorEl) {
+                    errorEl.innerText = "סיסמה שגויה. אנא נסה שוב.";
+                    errorEl.classList.remove('hidden');
+                }
+            }
+        }
+
+        function getRoomCodeFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            let room = params.get('room');
+            if (!room && window.location.hash) {
+                const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+                room = hashParams.get('room');
+            }
+            return room ? room.trim() : null;
+        }
+
+        function setRoomCodeInUrl(code) {
+            try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('room', code);
+                window.history.replaceState({}, '', url.toString());
+            } catch(e) {
+                console.warn("Could not set URL params:", e);
+            }
+        }
+
+        function getCloudEndpoint(roomCode) {
+            let hash = 0;
+            for (let i = 0; i < roomCode.length; i++) {
+                hash = ((hash << 5) - hash) + roomCode.charCodeAt(i);
+                hash |= 0;
+            }
+            const blobKey = Math.abs(hash).toString(16).padStart(12, 'a');
+            return `https://jsonblob.com/api/jsonBlob/${blobKey}`;
+        }
+
+        async function fetchFromCloud() {
+            if (isSyncing) return;
+            isSyncing = true;
+            updateSyncBadge('loading', 'מסתנכרן...');
+
+            try {
+                const endpoint = getCloudEndpoint(currentRoomCode);
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const remoteData = await response.json();
+                    if (remoteData && remoteData.items && Array.isArray(remoteData.items)) {
+                        appData = remoteData;
+                        
+                        if (!appData.events) appData.events = [...defaultEventsList];
+                        if (!appData.currentEvent) appData.currentEvent = appData.eventName || "ערב קהילה פתיחת שנה";
+                        if (appData.allowCommunity === undefined) appData.allowCommunity = false;
+                        appData.items.forEach(i => {
+                            if (!i.eventName) i.eventName = appData.currentEvent;
+                        });
+
+                        localStorage.setItem('breshit_community_db', JSON.stringify(appData));
+                        updateHeaderTitles();
+                        updateGlobalStats();
+                        updateGardenBadges();
+                        refreshCurrentScreen();
+                        updateSyncBadge('success', 'סנכרון ענן פעיל');
+                    }
+                } else if (response.status === 404) {
+                    await pushToCloud();
+                    updateSyncBadge('success', 'סנכרון ענן פעיל');
+                } else {
+                    updateSyncBadge('local', 'מצב מקומי');
+                }
+            } catch (e) {
+                console.warn("Cloud sync fetch error:", e);
+                updateSyncBadge('local', 'מצב מקומי');
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        async function pushToCloud() {
+            try {
+                updateSyncBadge('loading', 'שומר בענן...');
+                const endpoint = getCloudEndpoint(currentRoomCode);
+                const response = await fetch(endpoint, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(appData)
+                });
+
+                if (response.ok) {
+                    updateSyncBadge('success', 'סנכרון ענן פעיל');
+                } else {
+                    updateSyncBadge('local', 'שמור מקומית');
+                }
+            } catch (e) {
+                console.warn("Cloud sync push error:", e);
+                updateSyncBadge('local', 'שמור מקומית');
+            }
+        }
+
+        function updateSyncBadge(status, text) {
+            const badge = document.getElementById('sync-badge');
+            const dot = document.getElementById('sync-dot');
+            const label = document.getElementById('sync-text');
+
+            if (!badge || !dot || !label) return;
+
+            if (status === 'success') {
+                badge.className = "inline-flex items-center gap-1 text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition cursor-pointer border border-emerald-300";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse";
+                label.innerText = `${text} (${currentRoomCode})`;
+            } else if (status === 'loading') {
+                badge.className = "inline-flex items-center gap-1 text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 hover:bg-amber-200 transition cursor-pointer border border-amber-300";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping";
+                label.innerText = text;
+            } else {
+                badge.className = "inline-flex items-center gap-1 text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-sky-100 text-sky-800 hover:bg-sky-200 transition cursor-pointer border border-sky-300";
+                dot.className = "w-1.5 h-1.5 rounded-full bg-sky-500";
+                label.innerText = `${text} (${currentRoomCode})`;
+            }
+        }
+
+        function startCloudPolling() {
+            if (cloudPollingInterval) clearInterval(cloudPollingInterval);
+            fetchFromCloud();
+            cloudPollingInterval = setInterval(() => {
+                fetchFromCloud();
+            }, 3500);
+        }
+
+        function saveLocalDataAndSync() {
+            localStorage.setItem('breshit_community_db', JSON.stringify(appData));
+            updateHeaderTitles();
+            pushToCloud();
+        }
+
+        function generateFullShareUrl() {
+            let baseUrl = window.location.href.split('?')[0].split('#')[0];
+            if (baseUrl.startsWith('about:') || baseUrl.startsWith('blob:')) {
+                baseUrl = "https://breshit-gardens.web.app/";
+            }
+            return `${baseUrl}?room=${encodeURIComponent(currentRoomCode)}`;
+        }
+
+        function openShareModal() {
+            const shareUrl = generateFullShareUrl();
+            document.getElementById('share-link-input').value = shareUrl;
+            document.getElementById('share-room-code-display').innerText = currentRoomCode;
+            document.getElementById('modal-share').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('modal-share').classList.add('hidden');
+        }
+
+        function copyShareLink() {
+            const shareUrl = generateFullShareUrl();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast("הקישור הועתק!", "הקישור לשיתוף הועתק ללוח בהצלחה.", 'success');
+                    closeShareModal();
+                }).catch(() => fallbackCopyText(shareUrl));
+            } else {
+                fallbackCopyText(shareUrl);
+            }
+        }
+
+        function fallbackCopyText(text) {
+            const input = document.getElementById('share-link-input');
+            if (input) {
+                input.value = text;
+                input.select();
+                input.setSelectionRange(0, 99999);
+            }
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast("הקישור הועתק!", "הקישור נעתק בהצלחה.", 'success');
+                    closeShareModal();
+                    return;
+                }
+            } catch (err) {
+                console.error("Fallback copy error:", err);
+            }
+            showToast("הקישור הוצג", "ניתן להעתיק את הקישור מתיבת הטקסט.", 'info');
+        }
+
+        function shareViaWhatsApp() {
+            const shareUrl = generateFullShareUrl();
+            const eventTitle = appData.currentEvent || "מפגש קהילתי";
+            const message = `שלום לכולם! 🌸\nמצורף קישור לסנכרון ושיבוץ מצרכים ל${eventTitle} בגני בראשית:\n\n${shareUrl}\n\nסיסמת גישה: ${APP_ACCESS_PASSWORD}\nקוד חדר: ${currentRoomCode}\nאנא היכנסו והירשמו!`;
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+            closeShareModal();
+        }
+
+        function openRoomCodeModal() {
+            document.getElementById('room-code-input').value = currentRoomCode;
+            document.getElementById('modal-room-code').classList.remove('hidden');
+        }
+
+        function closeRoomCodeModal() {
+            document.getElementById('modal-room-code').classList.add('hidden');
+        }
+
+        function submitNewRoomCode() {
+            const newCode = document.getElementById('room-code-input').value.trim();
+            if (!newCode) {
+                showToast("שגיאה", "אנא הזן קוד חדר תקין", 'error');
+                return;
+            }
+            currentRoomCode = newCode;
+            setRoomCodeInUrl(currentRoomCode);
+            closeRoomCodeModal();
+            startCloudPolling();
+            showToast("חדר עודכן", `התחברת בהצלחה לחדר ${currentRoomCode}`, 'success');
+        }
+
+        function updateHeaderTitles() {
+            document.getElementById('header-event-name').innerText = appData.currentEvent || "מפגש קהילתי";
+            populateAdminEvents();
+            const communityToggle = document.getElementById('admin-allow-community-toggle');
+            if (communityToggle) {
+                communityToggle.checked = !!appData.allowCommunity;
+            }
+        }
+
+        function nav(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+
+            const homeBtn = document.getElementById('home-nav-btn');
+            if (screenId === 'screen-home') {
+                homeBtn.classList.add('hidden');
+                updateGlobalStats();
+            } else {
+                homeBtn.classList.remove('hidden');
+            }
+            if (screenId === 'screen-gardens') {
+                updateGardenBadges();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateGlobalStats() {
+            const currentItems = appData.items.filter(i => i.eventName === appData.currentEvent);
+            let totalQty = 0;
+            let fulfilledQty = 0;
+            const parentSet = new Set();
+
+            currentItems.forEach(i => {
+                totalQty += i.targetQty;
+                fulfilledQty += i.registered.length;
+                i.registered.forEach(r => {
+                    if (r.parentName) parentSet.add(r.parentName.trim().toLowerCase());
+                });
+            });
+
+            const percent = totalQty > 0 ? Math.min(100, Math.round((fulfilledQty / totalQty) * 100)) : 0;
+
+            const badge = document.getElementById('global-percent-badge');
+            const statTotal = document.getElementById('stat-total-items');
+            const statFulfilled = document.getElementById('stat-fulfilled-items');
+            const statParents = document.getElementById('stat-total-parents');
+
+            if (badge) badge.innerText = `${percent}% הושלם`;
+            if (statTotal) statTotal.innerText = totalQty;
+            if (statFulfilled) statFulfilled.innerText = fulfilledQty;
+            if (statParents) statParents.innerText = parentSet.size;
+        }
+
+        function updateGardenBadges() {
+            const gardens = ['רועי', 'ידידות', 'מתילדה', 'עמית', 'כלל הקהילה'];
+            const currentItems = appData.items.filter(i => i.eventName === appData.currentEvent);
+            gardens.forEach(g => {
+                const gItems = currentItems.filter(i => i.garden === g);
+                let target = 0;
+                let fulfilled = 0;
+                gItems.forEach(i => {
+                    target += i.targetQty;
+                    fulfilled += i.registered.length;
+                });
+                const pct = target > 0 ? Math.min(100, Math.round((fulfilled / target) * 100)) : 0;
+                
+                const safeId = g.replace(/\s+/g, '-');
+                const badge = document.getElementById(`badge-garden-${safeId}`);
+                const bar = document.getElementById(`bar-garden-${safeId}`);
+                if (badge) badge.innerText = `${fulfilled}/${target}`;
+                if (bar) bar.style.width = `${pct}%`;
+            });
+
+            const lockStatus = document.getElementById('lock-status-community');
+            const communityBtn = document.getElementById('btn-garden-community');
+            if (lockStatus && communityBtn) {
+                if (appData.allowCommunity) {
+                    lockStatus.classList.add('hidden');
+                    communityBtn.classList.remove('opacity-75');
+                } else {
+                    lockStatus.classList.remove('hidden');
+                    communityBtn.classList.add('opacity-75');
+                }
+            }
+        }
+
+        function selectGarden(garden) {
+            if (garden === 'כלל הקהילה' && !appData.allowCommunity) {
+                showToast("הרשמה סגורה", "אפשרות ההרשמה ל'כלל הקהילה' כבויה כעת. ניתן להפעילה במסך מנהל המערכת.", 'info');
+                return;
+            }
+            currentGarden = garden;
+            document.getElementById('garden-title-display').innerText = garden === 'כלל הקהילה' ? garden : 'גן ' + garden;
+            renderParentItems();
+            nav('screen-items');
+        }
+
+        function filterParentItems(mode) {
+            parentFilterMode = mode;
+            ['all', 'open', 'full'].forEach(m => {
+                const btn = document.getElementById(`tab-parent-${m}`);
+                if (m === mode) {
+                    btn.className = "flex-1 py-1.5 rounded-lg bg-white text-slate-900 shadow-sm transition font-bold";
+                } else {
+                    btn.className = "flex-1 py-1.5 rounded-lg hover:text-slate-900 transition font-medium text-slate-500";
+                }
+            });
+            renderParentItems();
+        }
+
+        function renderParentItems() {
+            const listContainer = document.getElementById('items-list');
+            listContainer.innerHTML = '';
+
+            let gardenItems = appData.items.filter(i => i.garden === currentGarden && i.eventName === appData.currentEvent);
+
+            if (parentFilterMode === 'open') {
+                gardenItems = gardenItems.filter(i => i.registered.length < i.targetQty);
+            } else if (parentFilterMode === 'full') {
+                gardenItems = gardenItems.filter(i => i.registered.length >= i.targetQty);
+            }
+
+            gardenItems.sort((a, b) => {
+                const aFull = a.registered.length >= a.targetQty;
+                const bFull = b.registered.length >= b.targetQty;
+                if (aFull && !bFull) return 1;
+                if (!aFull && bFull) return -1;
+                return 0;
+            });
+
+            if (gardenItems.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-slate-500 space-y-2">
+                        <i class="fa-solid fa-basket-shopping text-3xl text-slate-300"></i>
+                        <p class="text-xs font-bold text-slate-700">אין פריטים להצגה בקטגוריה זו</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gardenItems.forEach(item => {
+                const isFull = item.registered.length >= item.targetQty;
+                const percent = Math.min(100, Math.round((item.registered.length / item.targetQty) * 100));
+
+                const card = document.createElement('div');
+
+                if (isFull) {
+                    card.className = "bg-slate-100 border border-slate-200/80 rounded-2xl p-3.5 flex items-center justify-between opacity-80 select-none";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-lg bg-slate-300 text-white flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-check"></i>
+                            </span>
+                            <div>
+                                <span class="text-xs font-bold text-slate-600 line-through">${item.name}</span>
+                                <span class="text-[10px] font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full mr-1.5">הושלם</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-black text-slate-400">${item.registered.length}/${item.targetQty}</span>
+                    `;
+                } else {
+                    card.className = "bg-white border border-slate-200 hover:border-brand-500 rounded-2xl p-3.5 flex items-center justify-between shadow-sm transition cursor-pointer";
+                    card.onclick = (e) => {
+                        if (e.target.tagName !== 'INPUT') {
+                            const cb = card.querySelector('input[type="checkbox"]');
+                            if (cb) cb.checked = !cb.checked;
+                        }
+                    };
+
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" value="${item.id}" class="item-checkbox w-5 h-5 accent-brand-600 rounded-lg cursor-pointer">
+                            <div>
+                                <span class="text-xs font-extrabold text-slate-900 block">${item.name}</span>
+                                <div class="w-28 bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
+                                    <div class="bg-brand-500 h-1.5 rounded-full" style="width: ${percent}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold bg-brand-50 text-brand-700 border border-brand-200/80 px-2.5 py-1 rounded-xl">
+                            ${item.registered.length}/${item.targetQty}
+                        </span>
+                    `;
+                }
+
+                listContainer.appendChild(card);
+            });
+        }
+
+        async function submitRegistration() {
+            const parentName = document.getElementById('parent-name').value.trim();
+            const childName = document.getElementById('child-name').value.trim();
+            const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
+
+            if (!parentName || !childName) {
+                showToast("שגיאה", "אנא הזן את שם ההורה ושם הילד/ה", 'error');
+                return;
+            }
+
+            if (checkedBoxes.length === 0) {
+                showToast("שגיאה", "אנא בחר לפחות פריט אחד להרשמה", 'error');
+                return;
+            }
+
+            let count = 0;
+            checkedBoxes.forEach(cb => {
+                const itemId = cb.value;
+                const item = appData.items.find(i => String(i.id) === String(itemId));
+                if (item) {
+                    if (item.registered.length < item.targetQty) {
+                        item.registered.push({
+                            parentName: parentName,
+                            childName: childName,
+                            date: new Date().toISOString()
+                        });
+                        count++;
+                    }
+                }
+            });
+
+            if (count > 0) {
+                saveLocalDataAndSync();
+                document.getElementById('parent-name').value = '';
+                document.getElementById('child-name').value = '';
+                renderParentItems();
+                updateGardenBadges();
+                updateGlobalStats();
+                showToast("הרשמה בוצעה בהצלחה!", `נרשמת בהצלחה להבאת ${count} פריטים. תודה רבה!`, 'success');
+            } else {
+                showToast("שגיאה", "הפריטים שנבחרו כבר התמלאו. אנא רענן את העמוד.", 'error');
+            }
+        }
+
+        function openMyItemsModal() {
+            document.getElementById('my-items-search-input').value = '';
+            document.getElementById('my-items-results').innerHTML = '';
+            document.getElementById('modal-my-items').classList.remove('hidden');
+            document.getElementById('my-items-search-input').focus();
+        }
+
+        function closeMyItemsModal() {
+            document.getElementById('modal-my-items').classList.add('hidden');
+        }
+
+        function performMyItemsSearch() {
+            const query = document.getElementById('my-items-search-input').value.trim().toLowerCase();
+            const container = document.getElementById('my-items-results');
+            container.innerHTML = '';
+
+            if (!query) {
+                container.innerHTML = '<p class="text-red-500 text-center py-2 text-xs font-bold">אנא הזן שם לחיפוש</p>';
+                return;
+            }
+
+            let matched = [];
+
+            appData.items.forEach(item => {
+                item.registered.forEach(reg => {
+                    if (reg.parentName.toLowerCase().includes(query) || reg.childName.toLowerCase().includes(query)) {
+                        matched.push({
+                            itemName: item.name,
+                            eventName: item.eventName || "כללי",
+                            garden: item.garden,
+                            parent: reg.parentName,
+                            child: reg.childName
+                        });
+                    }
+                });
+            });
+
+            if (matched.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 text-center py-3 text-xs">לא נמצאו הרשמות עבור "${query}"</p>`;
+                return;
+            }
+
+            matched.forEach(m => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between gap-2";
+                itemDiv.innerHTML = `
+                    <div class="flex-grow">
+                        <span class="font-extrabold text-slate-800 block text-xs">${m.itemName}</span>
+                        <span class="text-[10px] text-slate-500 block leading-tight mt-0.5">אירוע: ${m.eventName}</span>
+                        <span class="text-[10px] text-slate-500 block leading-tight">הורה: ${m.parent} | ילד/ה: ${m.child}</span>
+                    </div>
+                    <span class="text-[10px] font-black px-2 py-0.5 bg-brand-100 text-brand-800 rounded-lg whitespace-nowrap shrink-0">
+                        ${m.garden === 'כלל הקהילה' ? m.garden : 'גן ' + m.garden}
+                    </span>
+                `;
+                container.appendChild(itemDiv);
+            });
+        }
+
+        function toggleAdminPinModal(show) {
+            const modal = document.getElementById('modal-admin-pin');
+            if (show) {
+                document.getElementById('admin-pin-input').value = '';
+                modal.classList.remove('hidden');
+                document.getElementById('admin-pin-input').focus();
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function verifyAdminPin() {
+            const pin = document.getElementById('admin-pin-input').value.trim();
+            if (pin === ADMIN_PIN_CODE) {
+                toggleAdminPinModal(false);
+                nav('screen-admin');
+                renderAdminTracking();
+            } else {
+                showToast("שגיאה", "לא יפה, לכל אחד יש את המקום שלו", 'error');
+            }
+        }
+
+        function logoutAdmin() {
+            nav('screen-home');
+        }
+
+        function populateAdminEvents() {
+            const select = document.getElementById('admin-event-select');
+            if (!select) return;
+            select.innerHTML = '';
+            (appData.events || defaultEventsList).forEach(evt => {
+                const opt = document.createElement('option');
+                opt.value = evt;
+                opt.innerText = evt;
+                if (evt === appData.currentEvent) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function changeActiveEvent() {
+            const select = document.getElementById('admin-event-select');
+            appData.currentEvent = select.value;
+            saveLocalDataAndSync();
+            updateGlobalStats();
+            updateGardenBadges();
+            refreshCurrentScreen();
+            showToast("אירוע שונה", `התצוגה שונתה לאירוע: ${appData.currentEvent}`, 'info');
+        }
+
+        function addNewEvent() {
+            const input = document.getElementById('admin-new-event-input');
+            const newEvent = input.value.trim();
+            if (!newEvent) {
+                showToast("שגיאה", "אנא הזן שם אירוע", 'error');
+                return;
+            }
+            if (!appData.events) appData.events = [...defaultEventsList];
+            if (appData.events.includes(newEvent)) {
+                showToast("שגיאה", "אירוע זה כבר קיים ברשימה", 'error');
+                return;
+            }
+            appData.events.push(newEvent);
+            appData.currentEvent = newEvent;
+            input.value = '';
+            saveLocalDataAndSync();
+            updateGlobalStats();
+            updateGardenBadges();
+            refreshCurrentScreen();
+            showToast("אירוע נוסף", `האירוע '${newEvent}' נוסף והוגדר כפעיל`, 'success');
+        }
+
+        function toggleAllowCommunity(enabled) {
+            appData.allowCommunity = enabled;
+            saveLocalDataAndSync();
+            updateGardenBadges();
+            showToast("הגדרות עודכנו", enabled ? "ההרשמה ל'כלל הקהילה' פתוחה כעת להורים" : "ההרשמה ל'כלל הקהילה' ננעלה", 'info');
+        }
+
+        function promptResetCurrentEvent() {
+            showConfirm("איפוס אירוע נוכחי", `האם למחוק את כל הפריטים וההרשמות המשויכים לאירוע '${appData.currentEvent}'? פעולה זו אינה דורשת סיסמא ולא ניתן לבטלה.`, () => {
+                appData.items = appData.items.filter(i => i.eventName !== appData.currentEvent);
+                saveLocalDataAndSync();
+                updateGlobalStats();
+                updateGardenBadges();
+                refreshCurrentScreen();
+                showToast("אירוע אופס", "כלל הפריטים וההרשמות לאירוע זה נמחקו בהצלחה.", 'success');
+            });
+        }
+
+        function addBulkItems() {
+            const garden = document.getElementById('admin-garden-select').value;
+            const text = document.getElementById('bulk-items').value.trim();
+            if (!text) {
+                showToast("שגיאה", "אנא הזן לפחות פריט אחד בתיבת הטקסט", 'error');
+                return;
+            }
+
+            const lines = text.split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                const parts = line.split(',');
+                const itemName = parts[0].trim();
+                const qty = parts[1] ? parseInt(parts[1].trim()) || 1 : 1;
+
+                if (itemName) {
+                    const newItem = {
+                        id: String(Date.now() + Math.floor(Math.random() * 1000)),
+                        name: itemName,
+                        targetQty: qty,
+                        garden: garden,
+                        eventName: appData.currentEvent,
+                        registered: []
+                    };
+                    appData.items.push(newItem);
+                    addedCount++;
+                }
+            });
+
+            saveLocalDataAndSync();
+            document.getElementById('bulk-items').value = '';
+            showToast("נוספו פריטים", `נוספו ${addedCount} פריטים לגן ${garden}`, 'success');
+            
+            if (document.getElementById('admin-view-garden').value === garden) {
+                renderAdminTracking();
+            }
+            updateGardenBadges();
+        }
+
+        function renderAdminTracking() {
+            const garden = document.getElementById('admin-view-garden').value;
+            const container = document.getElementById('admin-tracking-list');
+            container.innerHTML = '';
+
+            const gardenItems = appData.items.filter(i => i.garden === garden && i.eventName === appData.currentEvent);
+            if (gardenItems.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-slate-400 text-xs">
+                        <i class="fa-solid fa-box-open text-2xl mb-2"></i>
+                        <p>אין פריטים מוגדרים לגן זה עדיין.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            gardenItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2";
+
+                const isFull = item.registered.length >= item.targetQty;
+                
+                let regListHtml = item.registered.map((reg, idx) => `
+                    <li class="flex items-center justify-between text-xs bg-white px-2.5 py-1.5 rounded-xl border border-slate-200/60">
+                        <span><strong>${reg.parentName}</strong> (ילד/ה: ${reg.childName})</span>
+                        <button onclick="removeRegistration('${item.id}', ${idx})" class="text-red-500 hover:text-red-700 text-xs font-bold px-1.5 py-0.5 rounded-lg hover:bg-red-50 transition">
+                            <i class="fa-solid fa-user-minus"></i> הסר
+                        </button>
+                    </li>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold text-xs text-slate-900">${item.name}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${isFull ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                ${item.registered.length}/${item.targetQty}
+                            </span>
+                        </div>
+                        <button onclick="deleteItem('${item.id}')" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-2 py-1 rounded-xl transition font-bold">
+                            <i class="fa-solid fa-trash"></i> מחיקה
+                        </button>
+                    </div>
+                    <ul class="space-y-1 mt-1.5">
+                        ${regListHtml || '<li class="text-[11px] text-slate-400 italic">טרם נרשמו להבאת פריט זה</li>'}
+                    </ul>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function deleteItem(itemId) {
+            showConfirm("מחיקת פריט", "האם למחוק פריט זה לצמיתות מהמערכת והענן?", () => {
+                appData.items = appData.items.filter(i => String(i.id) !== String(itemId));
+                saveLocalDataAndSync();
+                renderAdminTracking();
+                updateGardenBadges();
+                showToast("נמחק", "הפריט הוסר בהצלחה", 'success');
+            });
+        }
+
+        function removeRegistration(itemId, regIndex) {
+            showConfirm("הסרת הרשמה", "האם למחוק את ההורה מההרשמה לפריט זה?", () => {
+                const item = appData.items.find(i => String(i.id) === String(itemId));
+                if (item && item.registered[regIndex]) {
+                    item.registered.splice(regIndex, 1);
+                    saveLocalDataAndSync();
+                    renderAdminTracking();
+                    updateGardenBadges();
+                    showToast("נמחק", "הרשמת ההורה הוסרה", 'success');
+                }
+            });
+        }
+
+        function promptResetSystem() {
+            document.getElementById('reset-pin-input').value = '';
+            document.getElementById('modal-reset-pin').classList.remove('hidden');
+            document.getElementById('reset-pin-input').focus();
+        }
+
+        function closeResetPinModal() {
+            document.getElementById('modal-reset-pin').classList.add('hidden');
+        }
+
+        function executeSystemReset() {
+            const pin = document.getElementById('reset-pin-input').value.trim();
+            if (pin === RESET_PIN_CODE) {
+                appData.items = [];
+                appData.events = [...defaultEventsList];
+                appData.currentEvent = "ערב קהילה פתיחת שנה";
+                
+                saveLocalDataAndSync();
+                closeResetPinModal();
+                updateGlobalStats();
+                updateGardenBadges();
+                refreshCurrentScreen();
+                showToast("מערכת אופסה", "כלל המידע וההרשמות נמחקו בהצלחה. המערכת הוחזרה למצב ההתחלתי.", 'success');
+            } else {
+                showToast("שגיאה", "קוד איפוס שגוי. הפעולה בוטלה.", 'error');
+            }
+        }
+
+        function exportDataJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `breshit_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function showToast(title, message, iconType = 'info') {
+            const modal = document.getElementById('modal-toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-message').innerText = message;
+
+            const iconBg = document.getElementById('toast-icon-bg');
+            const icon = document.getElementById('toast-icon');
+
+            if (iconType === 'success') {
+                iconBg.className = "w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-xl bg-emerald-100 text-emerald-600";
+                icon.className = "fa-solid fa-check";
+            } else if (iconType === 'error') {
+                iconBg.className = "w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-xl bg-red-100 text-red-600";
+                icon.className = "fa-solid fa-xmark";
+            } else {
+                iconBg.className = "w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-xl bg-sky-100 text-sky-600";
+                icon.className = "fa-solid fa-circle-info";
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeToast() {
+            document.getElementById('modal-toast').classList.add('hidden');
+        }
+
+        function showConfirm(title, message, onOk) {
+            const modal = document.getElementById('modal-confirm');
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            
+            onConfirmCallback = onOk;
+            modal.classList.remove('hidden');
+
+            document.getElementById('confirm-ok-btn').onclick = () => {
+                modal.classList.add('hidden');
+                if (onConfirmCallback) onConfirmCallback();
+            };
+            document.getElementById('confirm-cancel-btn').onclick = () => {
+                modal.classList.add('hidden');
+            };
+        }
+
+        function refreshCurrentScreen() {
+            const homeVisible = !document.getElementById('screen-home').classList.contains('hidden');
+            const itemsVisible = !document.getElementById('screen-items').classList.contains('hidden');
+            const adminVisible = !document.getElementById('screen-admin').classList.contains('hidden');
+
+            if (homeVisible) updateGlobalStats();
+            if (itemsVisible && currentGarden) renderParentItems();
+            if (adminVisible) renderAdminTracking();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAppAccess();
+
+            const urlRoom = getRoomCodeFromUrl();
+            if (urlRoom) {
+                currentRoomCode = urlRoom;
+            }
+
+            const localSaved = localStorage.getItem('breshit_community_db');
+            if (localSaved) {
+                try {
+                    appData = JSON.parse(localSaved);
+                    if (!appData.events) appData.events = [...defaultEventsList];
+                    if (!appData.currentEvent) appData.currentEvent = appData.eventName || "ערב קהילה פתיחת שנה";
+                    if (appData.allowCommunity === undefined) appData.allowCommunity = false;
+                    if (appData.items) {
+                        appData.items.forEach(i => {
+                            if (!i.eventName) i.eventName = appData.currentEvent;
+                        });
+                    }
+                } catch (e) {
+                    appData = JSON.parse(JSON.stringify(defaultData));
+                }
+            } else {
+                appData = JSON.parse(JSON.stringify(defaultData));
+            }
+
+            updateHeaderTitles();
+            updateGlobalStats();
+            updateGardenBadges();
+            startCloudPolling();
+        });
+    </script>
+</body>
+</html>
